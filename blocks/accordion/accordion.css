@@ -55,7 +55,98 @@
   padding: 0 16px;
 }
 
+.accordion.accordion7 .accordion-item-body {
+  padding: 0 16px 20px;
+  background: #f6f6f3;
+  border: none;
+}
+
 .accordion details[open] .accordion-item-body {
   border-top: 1px solid #dadada;
   background-color: var(--background-color);
+}
+
+.accordion.accordion7 {
+  background: #f6f6f3;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.accordion.accordion7 details {
+  border: none;
+  border-bottom: 1px solid #e5e5e0;
+  background: #f6f6f3;
+  margin: 0;
+  padding: 0;
+}
+
+.accordion.accordion7 details + details {
+  margin-top: 0;
+}
+
+.accordion.accordion7 details:last-child {
+  border-bottom: none;
+}
+
+.accordion.accordion7 summary.accordion-item-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px 20px 16px;
+  background: #f6f6f3;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  list-style: none;
+  min-height: 20px;
+  transition: background 0.2s;
+  position: relative;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.accordion.accordion7 summary.accordion-item-label::-webkit-details-marker {
+  display: none;
+}
+
+.accordion.accordion7 summary.accordion-item-label::marker {
+  display: none;
+}
+
+.accordion.accordion7 summary.accordion-item-label p {
+  color: #20201d;
+  font-size: 20px;
+  font-weight: 400;
+  font-family: var(--body-font-family, Arial, sans-serif);
+  margin: 0;
+  flex: 1 1 auto;
+}
+
+.accordion.accordion7 summary.accordion-item-label::after {
+  width: 10px;
+  height: 10px;
+  border-right: 1px solid #20201d;
+  border-bottom: 1px solid #20201d;
+  border-left: none;
+  border-top: none;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  box-sizing: border-box;
+  pointer-events: none;
+  background: transparent;
+  display: block;
+}
+
+.accordion.accordion7 details[open] summary.accordion-item-label::after {
+  transform: translateY(-50%) rotate(-135deg);
+}
+
+.accordion.accordion7 details[open] .accordion-item-body {
+  border-top: none;
+  background: #f6f6f3;
+  padding: 0 16px 20px;
 }
