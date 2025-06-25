@@ -1,42 +1,55 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  const cells = [
-    ['Carousel (carousel5)'],
-  ];
+  // Header row as in the example
+  const headerRow = ['Carousel (carousel5)'];
 
-  const slides = Array.from(element.querySelectorAll(':scope > a'));
+  // Each slide is a direct <a> child of the given element
+  const slides = Array.from(element.querySelectorAll(':scope > a.tab-menu-link'));
 
-  slides.forEach((slide) => {
-    // Image: get the first img
+  // For each slide, structure the row as: [image, text content]
+  const rows = slides.map((slide) => {
+    // First cell: the <img> element
     const img = slide.querySelector('img');
-
-    // Text: try to collect all text content that might exist in the slide (for future-proofing)
-    // We'll select anything that isn't the image: headings, paragraphs, links, divs with text, etc.
-    let textElements = [];
-    // Gather all non-image descendants that are not SVG/logo
-    const nonImageEls = Array.from(slide.querySelectorAll(':scope > *'));
-    for (const el of nonImageEls) {
-      // skip the image node itself
-      if (el === img) continue;
-      // skip svg/logo wrappers
-      if (el.querySelector('svg')) continue;
-      // If element has visible text or contains headings/paragraphs/links, include it
-      // (for robustness)
-      if (el.matches('h1,h2,h3,h4,h5,h6,p,a,span,div')) {
-        if (el.textContent.trim() !== '' || el.querySelector('a,button')) {
-          textElements.push(el);
+    // Second cell: any text content (most likely is SVG logo or other visual element)
+    // We'll grab everything except the first img from the main <div> inside the <a>
+    let textCell = '';
+    // The tab menu has a structure: <a><div> ... <img> ... <div>stuff</div></div></a>
+    // So, grab all children of the main div except the img
+    const container = slide.querySelector('div');
+    if (container) {
+      const parts = [];
+      Array.from(container.children).forEach((child) => {
+        if (child !== img) {
+          parts.push(child);
         }
+      });
+      // If there's text, use it
+      if (parts.length > 0) {
+        textCell = parts.length === 1 ? parts[0] : parts;
       }
     }
-    // If nothing found, leave empty string
-    const textCell = textElements.length > 0 ? textElements : '';
-
-    cells.push([
-      img,
-      textCell,
-    ]);
+    // If no textCell found, try collecting any text after the img
+    if (!textCell) {
+      const afterImg = [];
+      let foundImg = false;
+      for (const node of slide.childNodes) {
+        if (node === img) {
+          foundImg = true;
+          continue;
+        }
+        if (foundImg && (node.nodeType !== Node.TEXT_NODE || node.textContent.trim())) {
+          afterImg.push(node);
+        }
+      }
+      if (afterImg.length > 0) textCell = afterImg.length === 1 ? afterImg[0] : afterImg;
+    }
+    return [img, textCell];
   });
 
+  // Compose the table
+  const cells = [headerRow, ...rows];
   const block = WebImporter.DOMUtils.createTable(cells, document);
+
+  // Replace the original element
   element.replaceWith(block);
 }

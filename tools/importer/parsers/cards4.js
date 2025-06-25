@@ -1,31 +1,27 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Block header as specified
   const headerRow = ['Cards (cards4)'];
-  // Get all cards (direct children <a> tags)
-  const cards = Array.from(element.querySelectorAll(':scope > a'));
-  // For each card, extract image and text content
+  // Find all immediate child card links
+  const cards = Array.from(element.querySelectorAll(':scope > a.utility-link-content-block'));
   const rows = cards.map(card => {
-    // Find the inner grid (holds both image and content)
-    const grid = card.querySelector(':scope > .w-layout-grid');
-    if (!grid) return null;
-    // The image is always the first <img> in the grid
-    const img = grid.querySelector('img');
-    // For text content, exclude <img> and find the main <div> inside the grid
+    // Find image (first img inside the card)
+    const img = card.querySelector('img');
+    // Find grid layout inside the card (usually direct child of <a>)
+    const grid = card.querySelector('div.w-layout-grid');
+    // Inside grid: first child is img, second child is the text block
     const gridChildren = Array.from(grid.children);
-    // Find the first <div> (content container) that's not the image
-    let textDiv = gridChildren.find(child => child.tagName === 'DIV' && child !== img);
-    // Fallback: if not found, use the grid as textDiv (shouldn't happen in normal cases)
-    if (!textDiv) textDiv = grid;
-    // Ensure at least an image and textDiv is present
-    if (!img || !textDiv) return null;
-    return [img, textDiv];
-  }).filter(Boolean);
-  // Compose the table with header row and card rows
+    let imgEl = gridChildren.find(child => child.tagName === 'IMG');
+    let textEl = gridChildren.find(child => child !== imgEl);
+    // Remove the "Read" CTA at the end of text block (if present)
+    if (textEl && textEl.lastElementChild && textEl.lastElementChild.textContent.trim().toLowerCase() === 'read') {
+      textEl.removeChild(textEl.lastElementChild);
+    }
+    // Reference the actual DOM elements directly (no cloning)
+    return [imgEl, textEl];
+  });
   const table = WebImporter.DOMUtils.createTable([
     headerRow,
     ...rows
   ], document);
-  // Replace the original element
   element.replaceWith(table);
 }

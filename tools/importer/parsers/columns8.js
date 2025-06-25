@@ -1,27 +1,35 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Find the grid container
+  // Find the grid (columns) container within the block
   const grid = element.querySelector('.w-layout-grid');
-  if (!grid) return;
+  // If not found, fallback to direct children of container
+  let columns = [];
+  if (grid) {
+    columns = Array.from(grid.children);
+  } else {
+    // fallback: check for children in container
+    const container = element.querySelector('.container');
+    if (container) {
+      columns = Array.from(container.children);
+    } else {
+      columns = Array.from(element.children);
+    }
+  }
 
-  // Get the immediate children of the grid (the columns)
-  const columns = Array.from(grid.children);
-
-  // Ensure we have at least one column
-  if (columns.length === 0) return;
-
-  // Table header: block name exactly as in the example
+  // The block header should match exactly: 'Columns (columns8)'
   const headerRow = ['Columns (columns8)'];
+  // Each column is placed as a cell in the content row, preserving elements
+  const contentRow = columns.map(col => col);
 
-  // Table content row: each cell is a reference to each of the column elements
-  const contentRow = columns;
+  // Only add the row if at least one column (avoid empty block)
+  const rows = [headerRow];
+  if (contentRow.length > 0) {
+    rows.push(contentRow);
+  }
 
-  // Assemble the table
-  const table = WebImporter.DOMUtils.createTable([
-    headerRow,
-    contentRow,
-  ], document);
+  // Create the block table
+  const table = WebImporter.DOMUtils.createTable(rows, document);
 
-  // Replace the entire section element with the new table
+  // Replace the original element with the new table
   element.replaceWith(table);
 }

@@ -1,52 +1,49 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Prepare the header row as specified
-  const headerRow = ['Accordion'];
-  const rows = [];
+  // Create the header row for Accordion block
+  const cells = [['Accordion']];
 
-  // Get all accordion items (each .w-dropdown)
+  // Get all direct accordion items (each .accordion.w-dropdown)
   const accordionItems = element.querySelectorAll(':scope > .accordion.w-dropdown');
 
-  accordionItems.forEach(item => {
-    // Title: get the .paragraph-lg inside the .w-dropdown-toggle
-    const toggle = item.querySelector('.w-dropdown-toggle');
-    let title;
-    if (toggle) {
-      title = toggle.querySelector('.paragraph-lg') || toggle;
-    } else {
-      // fallback: create a blank cell if not found
-      title = document.createElement('div');
-      title.textContent = '';
+  accordionItems.forEach((item) => {
+    // Title cell: .w-dropdown-toggle > .paragraph-lg (the title text element)
+    let titleEl = item.querySelector('.w-dropdown-toggle .paragraph-lg');
+    if (!titleEl) {
+      // fallback to .w-dropdown-toggle's first child
+      const toggle = item.querySelector('.w-dropdown-toggle');
+      if (toggle && toggle.children.length > 0) {
+        titleEl = toggle.children[0];
+      }
     }
 
-    // Content: get the .w-dropdown-list > .utility-padding-all-1rem > .rich-text or .w-richtext
-    let content;
-    const nav = item.querySelector('nav.w-dropdown-list');
-    if (nav) {
-      // Look for .utility-padding-all-1rem inside nav
-      const pad = nav.querySelector('.utility-padding-all-1rem');
-      if (pad) {
-        // Prefer rich text
-        const rich = pad.querySelector('.rich-text, .w-richtext');
-        if (rich) {
-          content = rich;
-        } else {
-          // fallback: use all children of pad
-          content = pad;
-        }
+    // Content cell: .w-dropdown-list > * (wrap all content inside the dropdown list)
+    let contentEl = null;
+    const dropdownList = item.querySelector('.w-dropdown-list');
+    if (dropdownList) {
+      // If there's only one direct content block, reference it; else, wrap in a div
+      const contentNodes = Array.from(dropdownList.children);
+      if (contentNodes.length === 1) {
+        contentEl = contentNodes[0];
+      } else if (contentNodes.length > 1) {
+        const wrapper = document.createElement('div');
+        contentNodes.forEach(node => wrapper.appendChild(node));
+        contentEl = wrapper;
       } else {
-        // fallback: use nav itself
-        content = nav;
+        // If empty, create an empty div
+        contentEl = document.createElement('div');
       }
     } else {
-      content = document.createElement('div');
-      content.textContent = '';
+      // If no dropdown list, create an empty div
+      contentEl = document.createElement('div');
     }
 
-    rows.push([title, content]);
+    if (titleEl && contentEl) {
+      cells.push([titleEl, contentEl]);
+    }
+    // If one of the cells is missing, skip this item (avoid incomplete rows)
   });
 
-  const tableCells = [headerRow, ...rows];
-  const table = WebImporter.DOMUtils.createTable(tableCells, document);
+  const table = WebImporter.DOMUtils.createTable(cells, document);
   element.replaceWith(table);
 }

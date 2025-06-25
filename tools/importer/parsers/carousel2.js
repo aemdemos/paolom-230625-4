@@ -1,38 +1,25 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Build header row exactly as in example
-  const cells = [
-    ['Carousel (carousel2)']
-  ];
-
-  // Find the flex container with slides inside the provided element
-  const flexContainer = element.querySelector('.flex-horizontal.align-center.justify-center');
+  // Find the horizontal flex container with slides
+  const flexContainer = element.querySelector('.flex-horizontal.align-center.justify-center.flex-gap-md');
   if (!flexContainer) return;
+  const slideWrappers = flexContainer.querySelectorAll(':scope > .custom-hero-to-place-wrapper');
 
-  // Each slide is a direct child div with class 'custom-hero-to-place-wrapper'
-  const slideDivs = flexContainer.querySelectorAll(':scope > div.custom-hero-to-place-wrapper');
+  const rows = [];
+  // Header as required by the block
+  rows.push(['Carousel (carousel2)']);
 
-  slideDivs.forEach((slideDiv) => {
-    // The image for the slide
-    const img = slideDiv.querySelector('img');
-    if (!img) return; // skip if no image
-
-    // Try to extract text content for the second cell, for structure and extensibility
-    // Look for possible sibling or children elements (heading, paragraph, etc.)
-    // For current HTML, there is no text, so leave empty, but structure is ready for content
-    let textContent = '';
-    
-    // If you expect slides to sometimes contain text, you could do:
-    // const textBlocks = Array.from(slideDiv.children).filter(child => child !== img && child.tagName !== 'IMG');
-    // if (textBlocks.length > 0) textContent = textBlocks;
-    
-    cells.push([
-      img,
-      textContent
-    ]);
+  // Each slide: image only (first cell), second cell empty
+  slideWrappers.forEach(wrapper => {
+    const img = wrapper.querySelector('img');
+    if (img) {
+      rows.push([img, '']);
+    }
   });
 
-  // Create the block table and replace the original element
-  const block = WebImporter.DOMUtils.createTable(cells, document);
-  element.replaceWith(block);
+  // Only create and replace if we found slides
+  if (rows.length > 1) {
+    const table = WebImporter.DOMUtils.createTable(rows, document);
+    element.replaceWith(table);
+  }
 }
