@@ -1,4 +1,3 @@
-
 .cards > ul {
   list-style: none;
   margin: 0;
@@ -131,7 +130,7 @@
 }
 
 .cards.cards4 .cards-card-body > h3 {
-  font-family: Syncopate, 'Syncopate Fallback', Arial, sans-serif;
+  font-family: Syncopate, "Syncopate Fallback", Arial, sans-serif;
   font-size: 2.05rem;
   font-weight: 400;
   color: #232323;
@@ -208,5 +207,110 @@
     border-radius: 0 0 24px 24px;
     padding: 32px 24px;
     height: auto;
+  }
+}
+
+.cards.cards3 {
+  background: #fff;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 1280px;
+}
+
+.cards.cards3 > ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 32px 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cards.cards3 > ul > li {
+  width: calc((100% - 3 * 40px) / 4);
+  min-width: 220px;
+  box-sizing: border-box;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  /* Prevent shrinking to keep spacing consistent */
+  flex-shrink: 0;
+}
+
+.cards.cards3 .cards-card-body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.cards.cards3 .cards-card-body:first-child {
+  width: 24px;
+  min-width: 24px;
+  max-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  margin-right: 16px;
+  flex-shrink: 0;
+  flex-grow: 0;
+  display: flex;
+  align-items: flex-start;
+
+  /* Always visually reserve icon space */
+  background: transparent;
+  pointer-events: none;
+}
+
+.cards.cards3 .cards-card-body:last-child {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.cards.cards3 .cards-card-body:last-child p {
+  color: #212121;
+  font-size: 16px;
+  font-family: var(--body-font-family), Arial, sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+
+  /* Ensures that multi-line text doesn't wrap into the icon gutter */
+  text-indent: 0;
+  text-align: left;
+  overflow-wrap: break-word;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive adjustments: 2 columns on tablets, 1 on mobile */
+@media (width <= 900px) {
+  .cards.cards3 > ul > li {
+    width: calc((100% - 40px) / 2);
+    min-width: 160px;
+  }
+
+  .cards.cards3 > ul {
+    gap: 24px;
+  }
+}
+
+@media (width <= 600px) {
+  .cards.cards3 > ul > li {
+    width: 100%;
+    min-width: 100px;
+  }
+
+  .cards.cards3 > ul {
+    gap: 18px 0;
   }
 }
