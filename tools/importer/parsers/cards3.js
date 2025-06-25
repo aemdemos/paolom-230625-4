@@ -1,22 +1,24 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Prepare header row as per block name
+  // Compose the header row for the block name
   const headerRow = ['Cards (cards3)'];
-  const rows = [headerRow];
-  // Each card is a direct child div under the block
-  const cards = Array.from(element.querySelectorAll(':scope > div'));
-  cards.forEach(card => {
-    // The icon is in the first .icon child
-    const iconWrapper = card.querySelector('.icon');
-    // The text content is the <p> tag (always present in this block)
-    const text = card.querySelector('p');
-    // Defensive: If missing one, create empty placeholder
-    rows.push([
-      iconWrapper || document.createElement('span'),
-      text || document.createElement('span')
-    ]);
+
+  // Each child div is a card
+  const cardDivs = Array.from(element.querySelectorAll(':scope > div'));
+
+  // Prepare rows: each with 2 columns: [icon, text content]
+  const rows = cardDivs.map(card => {
+    // Get the icon container (includes SVG)
+    const iconDiv = card.querySelector('.icon');
+    // Get the text content. There is one <p> per card, may contain <strong> or <b> but that stays as is.
+    const textDiv = card.querySelector('p');
+    // Fallbacks if missing (should not generally happen in this block)
+    return [iconDiv || '', textDiv || ''];
   });
-  // Create the table and replace
-  const table = WebImporter.DOMUtils.createTable(rows, document);
+
+  // Build the table: first row header, then a row per card
+  const tableCells = [headerRow, ...rows];
+  const table = WebImporter.DOMUtils.createTable(tableCells, document);
+  // Replace the original element with the new table
   element.replaceWith(table);
 }

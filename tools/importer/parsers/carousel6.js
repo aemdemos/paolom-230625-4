@@ -1,45 +1,39 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Header row exactly as in example
+  // Table header exactly as in example
   const headerRow = ['Carousel (carousel6)'];
+
+  // Each .w-tab-pane is a carousel slide
+  const panes = element.querySelectorAll('.w-tab-pane');
   const rows = [headerRow];
 
-  // Each .w-tab-pane is a slide
-  const panes = element.querySelectorAll('.w-tab-pane');
-
   panes.forEach((pane) => {
-    // Find image: it's inside a grid with class utility-position-relative, then 'img'
-    let img = pane.querySelector('.utility-position-relative img');
-    // Fallback: just grab the first img in this pane if above fails
-    if (!img) img = pane.querySelector('img');
-
-    // Find text content grid (should contain a quote, name, and role)
-    // It has grid-layout and utility-padding-all-2rem
-    let textGrid = pane.querySelector('.grid-layout.utility-padding-all-2rem');
-    // Fallback: try for just utility-padding-all-2rem
-    if (!textGrid) textGrid = pane.querySelector('.utility-padding-all-2rem');
-
-    // Will collect quote (p), name, role in order
-    const textCellContent = [];
-    if (textGrid) {
-      // Grab the main quote (p)
-      const quote = textGrid.querySelector('p');
-      if (quote) textCellContent.push(quote);
-      // Grab name (paragraph-xl utility-margin-bottom-0-5rem)
-      const name = textGrid.querySelector('.paragraph-xl.utility-margin-bottom-0-5rem');
-      if (name) textCellContent.push(name);
-      // Grab role (paragraph-lg utility-margin-bottom-0)
-      const role = textGrid.querySelector('.paragraph-lg.utility-margin-bottom-0');
-      if (role) textCellContent.push(role);
+    // --- IMAGE CELL ---
+    let imgCell = null;
+    // Find a container with utility-position-relative and an <img>
+    // (First .utility-position-relative in this pane)
+    const relDiv = pane.querySelector('.utility-position-relative');
+    if (relDiv) {
+      const img = relDiv.querySelector('img');
+      if (img) {
+        imgCell = img;
+      }
     }
-
-    // Build the row
-    rows.push([
-      img || '',
-      textCellContent.length > 0 ? textCellContent : ''
-    ]);
+    
+    // --- TEXT CELL ---
+    let textCell = null;
+    // Find the content grid (with .w-layout-grid.desktop-5-column, should be second grid in the slide)
+    const textGrid = pane.querySelector('.w-layout-grid.grid-layout.desktop-5-column');
+    if (textGrid) {
+      textCell = textGrid;
+    }
+    // If no textGrid, use empty string (shouldn't happen in this example, but makes it robust)
+    if (!textCell) textCell = '';
+    
+    rows.push([imgCell, textCell]);
   });
 
+  // Create table and replace
   const table = WebImporter.DOMUtils.createTable(rows, document);
   element.replaceWith(table);
 }

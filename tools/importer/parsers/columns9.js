@@ -1,23 +1,18 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Find the grid layout container
+  // Find the grid layout (contains the columns)
   const grid = element.querySelector('.grid-layout');
   if (!grid) return;
 
-  // Get all columns (direct children of the grid)
+  // Get all direct children of the grid. These are the columns.
   const columns = Array.from(grid.children);
 
-  // Header row: single cell as required
+  // The header row should be a single cell with the exact text
   const headerRow = ['Columns (columns9)'];
-  // Content row: each cell is a column's content
+  // The content row should have one cell per column
   const contentRow = columns;
 
-  // Table rows: header is a single column, content row has N columns
-  const rows = [
-    headerRow,
-    contentRow
-  ];
-
-  const table = WebImporter.DOMUtils.createTable(rows, document);
-  element.replaceWith(table);
+  const tableData = [headerRow, contentRow];
+  const block = WebImporter.DOMUtils.createTable(tableData, document);
+  element.replaceWith(block);
 }
